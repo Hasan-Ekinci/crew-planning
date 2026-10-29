@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('user_shifts', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('shift_id');
+            $table->foreignId('user_id');
             $table->timestamps();
+
+            $table->foreign('shift_id')->references('id')->on('shifts');
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
