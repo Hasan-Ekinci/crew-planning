@@ -18,7 +18,7 @@ class BaseSeeder extends Seeder
         // seed the users
         $admin = User::factory()->create([
             'name' => 'Admin user',
-            'email' => 'test@crew.com',
+            'email' => 'admin@crew.com',
             'password' => \Hash::make('admin'),
         ]);
 
