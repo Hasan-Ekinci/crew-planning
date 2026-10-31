@@ -40,7 +40,7 @@
 
 <script>
 import { ref } from 'vue';
-import { useHttp } from '@inertiajs/vue3';
+import { router, useHttp } from '@inertiajs/vue3';
 
 export default {
     setup() {
@@ -64,7 +64,7 @@ export default {
                     if (response.success) {
 
                         errorMessage.value = ''
-                        // redirect to the logged in page
+                        router.visit('/redirect-to-correct-dashboard');
                     
                     }
                 

@@ -50,4 +50,24 @@ class LoginController extends Controller
             'message' => ''
         ];
     }
+
+    // public function redirectToCorrectDashboard(): \Illuminate\Http\RedirectResponse
+    public function redirectToCorrectDashboard()
+    {
+        // check if the user is logged in, else redirect to index
+        if (!\Auth::check()) {
+            return \Redirect(route('login'));
+        }
+
+        $account = \Auth::user();
+
+        // check if the user is an admin
+        $roles = $account->getRelationValue('roles');
+        if (in_array('Admin', $roles->pluck('name')->toArray())) {
+            return \Redirect(route('admin'));
+        }
+
+        // TODO: redirect worker to their dashboard
+        return \Redirect('/');
+    }
 }
