@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\User;
+use App\Http\Requests\LoginAuthenticateRequest;
 
 class LoginController extends Controller
 {
@@ -14,7 +15,7 @@ class LoginController extends Controller
         return Inertia::render('Login');
     }
 
-    public function authenticate(Request $request): array
+    public function authenticate(LoginAuthenticateRequest $request): array
     {
         // always logout
         \Auth::logout();
