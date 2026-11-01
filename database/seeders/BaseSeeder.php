@@ -52,7 +52,7 @@ class BaseSeeder extends Seeder
         ]);
 
         $shiftLeaderRole = Role::create([
-            'name' => 'Catering',
+            'name' => 'Shift Leader',
             'color' => '#d92a02'
         ]);
 

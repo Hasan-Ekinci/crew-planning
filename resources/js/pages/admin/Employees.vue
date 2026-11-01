@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import AdminLayout from '@/shared-components/AdminLayout.vue';
+import AdminLayout from '@/shared-components/layouts/AdminLayout.vue';
 
 export default {
     components: {

@@ -29,6 +29,18 @@ class User extends Authenticatable
         );
     }
 
+    public function shifts(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Shift::class,
+            UserShift::class,
+            'user_id',
+            'id',
+            'id',
+            'shift_id',
+        );
+    }
+
     /**
      * Get the attributes that should be cast.
      *
