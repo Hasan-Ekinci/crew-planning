@@ -16,8 +16,10 @@ Route::middleware([AdminAuth::class])->group(function () {
 
     route::get('/admin/get-roles', [AdminController::class, 'getRoles'])->name('adminGetRoles');
     route::get('/admin/get-employees-by-roles', [AdminController::class, 'getEmployeesByRole'])->name('adminGetEmplloyeesByRoles');
-    route::post('/admin/add-shift', [AdminController::class, 'addShift'])->name('adminAddShift');
+    
     route::get('/admin/get-shifts', [AdminController::class, 'getShifts'])->name('adminGetShifts');
+    route::post('/admin/add-shift', [AdminController::class, 'addShift'])->name('adminAddShift');
+    route::put('/admin/update-shift', [AdminController::class, 'updateShift'])->name('adminUpdateShift');
 });
 
 Route::fallback(fn () => redirect('/'));

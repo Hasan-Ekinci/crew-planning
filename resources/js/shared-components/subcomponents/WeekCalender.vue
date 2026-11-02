@@ -30,8 +30,9 @@
                 <article
                     v-for="(shift, index) in calendarShifts"
                     :key="shift.id"
+                    @click="setSelectedShift(shift)"
                     :style="{ gridColumn: `${shift.startColumn} / ${shift.endColumn}`, gridRow: index + 1 }"
-                    class="relative mx-1 min-w-0 rounded border border-blue-300 bg-blue-100 px-3 py-2 text-sm text-blue-900"
+                    class="relative mx-1 min-w-0 rounded border border-blue-300 bg-blue-100 px-3 py-2 text-sm text-blue-900 cursor-pointer hover:bg-slate-300"
                 >
                     <p class="break-words font-medium">{{ shift.title }}</p>
                 </article>
@@ -54,7 +55,7 @@ export default {
             required: true,
         },
     },
-    emits: ['changeWeek'],
+    emits: ['changeWeek', 'setSelectedShift'],
     setup(props, { emit }) {
         const days = [
             'Maandag',
@@ -102,11 +103,16 @@ export default {
             emit('changeWeek', direction);
         }
 
+        function setSelectedShift(shift) {
+            emit('setSelectedShift', shift)
+        }
+
         return { 
             days,
             calendarShifts,
             weekDateRange,
-            changeWeek
+            changeWeek,
+            setSelectedShift
          };
     },
 };

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\getAvailableEmployeesByRoleRequest;
-use App\Http\Requests\AddShiftRequest;
+use App\Http\Requests\AddOrUpdateShiftRequest;
 use App\Http\Requests\GetShiftsRequest;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -55,17 +55,12 @@ class AdminController extends Controller {
         $roleId = $request->input('roleId');
         $start = Carbon::parse($request->input('start'));
         $end = Carbon::parse($request->input('end'));
-        return $this->employeeRepository->getAvailableEmployeesByRole($roleId, $start, $end);
+        $shiftId = $request->input('shiftId');
+        return $this->employeeRepository->getAvailableEmployeesByRole($roleId, $start, $end, $shiftId);
     }
 
     public function getShifts(GetShiftsRequest $request): array
     {
-
-        // get the current datetime object
-        // parse it
-        // add or remove a week based on direction.
-        // return the shifts of the week AND the new startOfWeek datettime
-
         $newDate = Carbon::parse($request->input('oldDate'));
         $direction = $request->input('direction');
 
@@ -82,9 +77,14 @@ class AdminController extends Controller {
         ];
     }
 
-    public function AddShift(AddShiftRequest $request): array
+    public function AddShift(AddOrUpdateShiftRequest $request): array
     {
-        return $this->shiftRepository->addShift($request);
+        return $this->shiftRepository->addShiftOrUpdate($request);
+    }
+
+    public function UpdateShift(AddOrUpdateShiftRequest $request): array
+    {
+        return $this->shiftRepository->addShiftOrUpdate($request);
     }
 
     private function getNavigationItems(): array

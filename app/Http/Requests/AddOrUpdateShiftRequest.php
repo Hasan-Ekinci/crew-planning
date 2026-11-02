@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddShiftRequest extends FormRequest
+class AddOrUpdateShiftRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,6 +23,7 @@ class AddShiftRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => 'nullable|exists:shifts,id',
             'title' => 'required|string',
             'description' => 'string|nullable',
             'max_crew' => 'required|int|min:0',

@@ -1,5 +1,5 @@
 <template>
-    <Modal :open-modal="openModal" @close-modal="$emit('closeModal')">
+    <Modal :open-modal="openModal" @close-modal="doCloseModal">
         <h2 class="mb-4 text-xl font-semibold">Shift toevoegen</h2>
 
         <form class="space-y-4" @submit.prevent="submitForm">
@@ -125,7 +125,7 @@
                     :disabled="submitHttp.processing"
                     class="cursor-pointer rounded border border-gray-300 bg-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    Shift toevoegen
+                    Opslaan
                 </button>
             </div>
         </form>
@@ -145,6 +145,10 @@ export default {
         openModal: {
             type: Boolean,
             default: false
+        },
+        existingShift: {
+            type: Object,
+            default: () => {}
         }
     },
     emits: ['closeModal', 'fetchAllShifts'],
@@ -159,6 +163,7 @@ export default {
         const errorMessage = ref('')
 
         const form = reactive({
+            id: null,
             title: '',
             description: '',
             max_crew: '',
@@ -168,8 +173,27 @@ export default {
             employees: []
         });
 
+        const isUpdateForm = ref(!!props.existingShift?.id)
         const roles = ref([]);
         const plannedEmployeeIds = ref([]);
+
+        if (isUpdateForm.value) {
+            Object.assign(form, {
+                id: props.existingShift.id,
+                title: props.existingShift.title,
+                description: props.existingShift.description ?? '',
+                max_crew: props.existingShift.max_crew,
+                shift_role: props.existingShift.shift_role,
+                start_datetime: props.existingShift.start_datetime.replace(' ', 'T').slice(0, 16),
+                end_datetime: props.existingShift.end_datetime.replace(' ', 'T').slice(0, 16),
+                employees: (props.existingShift.users ?? []).map(user => ({
+                    id: user.id,
+                    name: user.name,
+                })),
+            });
+            plannedEmployeeIds.value = form.employees.map(employee => employee.id);
+        }
+
         const availableEmployees = computed(() => form.employees.filter(
             employee => !plannedEmployeeIds.value.includes(employee.id)
         ));
@@ -179,44 +203,72 @@ export default {
         const http = useHttp();
         const submitHttp = useHttp();
 
+        function resetForm() {
+            Object.assign(form, {
+                id: null,
+                title: '',
+                description: '',
+                max_crew: '',
+                shift_role: '',
+                start_datetime: `${today}T09:00`,
+                end_datetime: `${today}T17:00`,
+                employees: [],
+            });
+            plannedEmployeeIds.value = [];
+            errorMessage.value = '';
+        }
+
+        function doCloseModal() {
+            resetForm()
+            emit('closeModal');
+        }
+
         async function submitForm() {
 
-            try {
-                await submitHttp.transform(() => ({
-                    ...form,
-                    employees: plannedEmployees.value.map(employee => ({
-                        id: employee.id,
-                        name: employee.name,
-                    })),
-                }))
-                .post('/admin/add-shift', {
+            const call = await submitHttp.transform(() => ({
+                ...form,
+                employees: plannedEmployees.value.map(employee => ({
+                    id: employee.id,
+                    name: employee.name,
+                })),
+            }))
+
+            if (isUpdateForm) {
+                call.post('/admin/add-shift', {
                     onSuccess: (response) => {
                         if (!response.success) {
                             errorMessage.value = response.message
                             return;
                         }
 
-                        Object.assign(form, {
-                            title: '',
-                            description: '',
-                            max_crew: '',
-                            shift_role: '',
-                            start_datetime: `${today}T09:00`,
-                            end_datetime: `${today}T17:00`,
-                            employees: [],
-                        });
-                        plannedEmployeeIds.value = [];
-                        errorMessage.value = '';
+                        resetForm()
+
                         emit('fetchAllShifts', 'current');
                         emit('closeModal');
                     },
                     onError: (errors) => {
                         errorMessage.value = Object.values(errors).flat().join(' ');
                     },
-                });
-            } catch (error) {
-                //
+                });   
+            } else {
+                call.put('/admin/update-shift', {
+                    onSuccess: (response) => {
+                        if (!response.success) {
+                            errorMessage.value = response.message
+                            return;
+                        }
+
+                        resetForm()
+
+                        emit('fetchAllShifts', 'current');
+                        emit('closeModal');
+                    },
+                    onError: (errors) => {
+                        errorMessage.value = Object.values(errors).flat().join(' ');
+                    },
+                }); 
             }
+            
         }
 
         function toggleEmployee(employeeId) {
@@ -239,6 +291,7 @@ export default {
                     roleId: form.shift_role,
                     start: form.start_datetime,
                     end: form.end_datetime,
+                    shiftId: form.id ?? ''
                 });
                 const response = await http.get(`/admin/get-employees-by-roles?${params.toString()}`);
                 form.employees = response
@@ -259,7 +312,17 @@ export default {
             if (!form.shift_role || !form.start_datetime || !form.end_datetime) {
                 return;
             }
-            fetchEmployeesForRole()
+            const assignedEmployees = [...plannedEmployees.value];
+            await fetchEmployeesForRole();
+
+            if (isUpdateForm.value) {
+                for (const employee of assignedEmployees) {
+                    if (!form.employees.some(available => available.id === employee.id)) {
+                        form.employees.push(employee);
+                    }
+                }
+                plannedEmployeeIds.value = assignedEmployees.map(employee => employee.id);
+            }
         });
 
         return {
@@ -270,6 +333,7 @@ export default {
             plannedEmployees,
             toggleEmployee,
             submitHttp,
+            doCloseModal,
             submitForm,
             fetchEmployeesForRole
         };

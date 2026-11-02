@@ -26,6 +26,7 @@ class getAvailableEmployeesByRoleRequest extends FormRequest
             'roleId' => 'int|required',
             'start' => 'required|date_format:Y-m-d\TH:i',
             'end' => 'required|date_format:Y-m-d\TH:i',
+            'shiftId' => 'nullable|exists:shifts,id',
         ];
     }
 }

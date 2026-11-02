@@ -3,7 +3,7 @@
         <div class="flex min-h-0 flex-1 flex-col gap-4">
             <div class="flex shrink-0 items-center justify-end">
                 <button
-                    @click="openModal = true"
+                    @click="setSelectedShift"
                     type="button"
                     class="rounded border border-gray-300 bg-slate-200 px-4 py-2 text-sm font-medium hover:bg-gray-400 hover:cursor-pointer"
                 >
@@ -11,10 +11,22 @@
                 </button>
             </div>
 
-            <WeekCalender :shifts="shiftsFetched" :week-start-date-time="weekStartDateTimeUpdated" @change-week="changeWeek"></WeekCalender>
+            <WeekCalender
+                :shifts="shiftsFetched"
+                :week-start-date-time="weekStartDateTimeUpdated"
+                @change-week="changeWeek"
+                @set-selected-shift="setSelectedShift"
+            ></WeekCalender>
         </div>
 
-        <ShiftModal :open-modal="openModal" @close-modal="openModal = false" @fetch-all-shifts="fetchAllShifts"></ShiftModal>
+        <span v-if="openModal">
+            <ShiftModal
+                :open-modal="openModal"
+                :existing-shift="selectedShift"
+                @close-modal="openModal = false"
+                @fetch-all-shifts="fetchAllShifts"
+            ></ShiftModal>
+        </span>
     </AdminLayout>
 </template>
 
@@ -70,10 +82,18 @@ export default {
             weekStartDateTimeUpdated.value = response.newWeekStartDate
         }
 
+        const selectedShift = ref(null)
+        function setSelectedShift(shift) {
+            selectedShift.value = shift
+            openModal.value = true
+        }
+
         return {
             openModal,
             shiftsFetched,
             weekStartDateTimeUpdated,
+            selectedShift,
+            setSelectedShift,
             fetchAllShifts,
             changeWeek: fetchAllShifts
         }
