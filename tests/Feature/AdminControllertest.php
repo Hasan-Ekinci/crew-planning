@@ -4,6 +4,9 @@
 // test dat een shift verwijderd kan worden
 // test dat een shift geupdate kan worden
 
+// test dat initiele shifts goed worden ingeladen
+// test dat nieuwe shifts ophalen goed gaat
+
 // test Dat gebruikers niet op dubbele shifts ingepland kunnen worden bij CREATE
 // test Dat gebruikers niet op dubbele shifts ingepland kunnen worden bij UPDATE
 

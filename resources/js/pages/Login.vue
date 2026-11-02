@@ -60,7 +60,6 @@ export default {
                 password: password.value,
             })).post('/authenticate', {
                 onSuccess: (response) => {
-                    console.log(response);
                     if (response.success) {
 
                         errorMessage.value = ''

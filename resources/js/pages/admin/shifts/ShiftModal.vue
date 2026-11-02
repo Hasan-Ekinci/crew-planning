@@ -207,7 +207,7 @@ export default {
                         });
                         plannedEmployeeIds.value = [];
                         errorMessage.value = '';
-                        emit('fetchAllShifts');
+                        emit('fetchAllShifts', 'current');
                         emit('closeModal');
                     },
                     onError: (errors) => {

@@ -5,8 +5,17 @@ namespace App\Repositories;
 use App\models\UserShift;
 use App\models\Shift;
 use App\Http\Requests\AddShiftRequest;
+use Carbon\Carbon;
 
 class ShiftRepository {
+    public function getShiftsForWeek(Carbon $date): \Illuminate\Support\Collection
+    {
+        return Shift::query()
+            ->where('start_datetime', '>=', $date->copy()->startOfWeek())
+            ->where('end_datetime', '<=', $date->copy()->endOfWeek())
+            ->get();
+    }
+
     public function addShift(AddShiftRequest $request): array
     {
         // check wether all users can be assigned to this shift first
@@ -33,9 +42,9 @@ class ShiftRepository {
                         $query->on('user_shifts.shift_id', 'shifts.id')
                             ->where('user_shifts.user_id', $user['id'])
                             ->where(function ($query) use ($start_datetime, $end_datetime) {
-                                $query->where('start_datetime', '>', $start_datetime)
+                                $query->where('start_datetime', '>=', $start_datetime)
                                     ->where('start_datetime' , '<', $end_datetime)
-                                    ->orWhere('end_datetime', '>', $start_datetime)
+                                    ->orWhere('end_datetime', '>=', $start_datetime)
                                     ->where('end_datetime', '<', $end_datetime);
                             });
                     })
