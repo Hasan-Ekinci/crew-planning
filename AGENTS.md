@@ -10,6 +10,7 @@ This file applies to the entire repository; check for more specific `AGENTS.md` 
 
 - **Implement exactly what the user asks for. Treat the stated instructions and scope as authoritative.** Complete the requested work using the existing code patterns and structure.
 - Add tests only when the user explicitly requests tests. Do not add or rewrite tests on your own initiative.
+- Run tests, formatters, static analysis, type checks, builds, browser/UI checks (including Playwright, Cypress, and Maestro), and Git validation checks only when the user explicitly requests them. A request to implement something does not authorize an automatic validation workflow.
 - Add only the features and structures needed for the explicitly requested result. Do not introduce extra features, architectural layers, abstractions, directories, or dependencies that the user did not request.
 - Keep initiative limited to completing the stated task. Do not perform unsolicited refactoring, cleanup, redesigns, or improvements to adjacent code.
 - Make only the edits necessary to fulfill the request. General best practices, personal preferences, or assumptions about future needs do not authorize additional work.
@@ -39,7 +40,6 @@ This file applies to the entire repository; check for more specific `AGENTS.md` 
 - Extend the structure already used in this repository. Introduce a different architecture, abstraction, or coding pattern only when the user explicitly requests that change. Generic Laravel/Vue recommendations and generated scaffolding must fit the existing approach.
 - Keep structural changes within the requested scope. Preserve existing classes, responsibilities, and directories when adding functionality. When examples differ, follow the closest comparable feature; correct defects when required by the task without turning them into conventions.
 - Follow `.editorconfig`: UTF-8, LF, four spaces, and a final newline; YAML uses two spaces.
-- Use the Laravel Pint preset in `pint.json` for PHP formatting.
 - Preserve route names, Inertia page names, request fields, component props/events, and response shapes unless the task requires changing them; update their consumers together when they change.
 - Keep secrets in local environment configuration and out of tracked files.
 
@@ -66,26 +66,11 @@ This file applies to the entire repository; check for more specific `AGENTS.md` 
 
 ## Change guidance
 
-Run commands from the repository root. Use `composer.json` and `package.json` as the source of truth for scripts and dependencies.
+Follow the user's exact instructions for implementation and commands. Use `composer.json` and `package.json` as the source of truth when a command is explicitly requested, and run it from the repository root.
 
-| Task | Command |
-| --- | --- |
-| Start application development processes | `composer dev` |
-| Start Vite separately | `npm run dev` |
-| Check frontend types | `npm run types:check` |
-| Build frontend assets | `npm run build` |
-| Format changed PHP files | `vendor/bin/pint <paths>` |
-| Run the existing test suite | `composer test` |
-| Run a focused test file | `php artisan test tests/Feature/LoginControllerTest.php` |
-
-- After PHP changes, run Pint on the changed PHP files, then PHPStan if available, then relevant existing tests. PHPStan is currently absent from the Composer dependencies and no configuration is tracked; report that limitation rather than installing it just to validate a change.
-- After frontend changes, run the type check and production build.
-- Fix validation failures caused by the requested changes. Report unrelated existing failures without expanding the task to fix them.
-- Add or modify tests only when explicitly requested by the user. For requested test work, follow the existing Pest conventions and resolve relevant existing validation failures before adding coverage.
-- Feature tests extend `Tests\TestCase`, which uses `RefreshDatabase`. `phpunit.xml` targets the MySQL database `crew_planning_testing`; verify the effective testing connection points to that dedicated database before running database tests.
+- For explicitly requested test work, follow the existing Pest conventions. Feature tests extend `Tests\TestCase`, which uses `RefreshDatabase`; ensure requested database tests use the dedicated MySQL database `crew_planning_testing` configured in `phpunit.xml`.
 - `composer setup` installs dependencies, creates environment configuration, generates an application key, runs migrations, and builds assets. Use it for initial setup, with the intended database configured.
-- Keep changes focused and preserve existing user edits. Report checks that could not run and their concrete blockers.
-- Before finishing, compare changed routes, PHP classes, middleware, Vue components, and file locations with the existing reference implementations. Resolve any unrequested deviation from their patterns.
+- Keep changes focused and preserve existing user edits.
 
 ## Context navigation
 
