@@ -7,6 +7,17 @@ use App\Models\User;
 use Carbon\Carbon;
 
 class EmployeeRepository {
+    public function getEmployees(): \Illuminate\Support\Collection
+    {
+        return User::query()
+            ->select(['id', 'name', 'email'])
+            ->with('roles', function ($query) {
+                $query->select(['roles.name']);
+            })
+            ->orderBy('name')
+            ->get();
+    }
+
     public function getEmployeeRoles(): \Illuminate\Support\Collection
     {
         return Role::query()

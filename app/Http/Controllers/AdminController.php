@@ -30,14 +30,6 @@ class AdminController extends Controller {
         ]);
     }
 
-    public function employees(): Response
-    {
-        return Inertia::render('admin/Employees', [
-            'activePage' => 'employees',
-            'navigationItems' => $this->getNavigationItems()
-        ]);
-    }
-
     public function roles(): Response
     {
         return Inertia::render('admin/Roles', [

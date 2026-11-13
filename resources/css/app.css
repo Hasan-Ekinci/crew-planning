@@ -11,11 +11,27 @@
 ::view-transition-group(sidebar-active),
 ::view-transition-old(sidebar-active),
 ::view-transition-new(sidebar-active),
-::view-transition-group(page-content),
-::view-transition-old(page-content),
-::view-transition-new(page-content) {
+::view-transition-group(page-content) {
     animation-duration: 200ms;
     animation-timing-function: ease-in-out;
+}
+
+::view-transition-old(page-content) {
+    animation: page-content-fade-out 80ms ease-out both;
+}
+
+::view-transition-new(page-content) {
+    animation: page-content-fade-in 120ms ease-in 80ms both;
+}
+
+@keyframes page-content-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes page-content-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -26,5 +42,9 @@
     ::view-transition-old(page-content),
     ::view-transition-new(page-content) {
         animation: none;
+    }
+
+    ::view-transition-old(page-content) {
+        display: none;
     }
 }
