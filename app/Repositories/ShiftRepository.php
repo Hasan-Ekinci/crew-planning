@@ -61,7 +61,7 @@ class ShiftRepository {
         if (($usersCount = count($users)) > ($maxCrew = $request->input('max_crew'))) {
             return [
                         'success' => false,
-                        'message' => "Maximum werknemers ingesteld op {$maxCrew}. Je hebt er {$usersCount} geslecteerd"
+                        'message' => "This shift has a maximum crew size of {$maxCrew}. You selected {$usersCount}."
                     ];
         }
         
@@ -88,7 +88,7 @@ class ShiftRepository {
                     $name = $user['name'];
                     return [
                         'success' => false,
-                        'message' => "{$name} is op dat moment al ingepland"
+                        'message' => "{$name} is already assigned to another shift during this time."
                     ];
                 }
             }

@@ -30,7 +30,7 @@ class LoginController extends Controller
         if (is_null($account)) {
             return [
                 'success' => false,
-                'message' => 'Incorrecte inloggegevens'
+                'message' => 'Invalid email or password.'
             ];
         }
 
@@ -38,7 +38,7 @@ class LoginController extends Controller
         if (!\Hash::check($password, $account->getAttribute('password'))) {
             return [
                 'success' => false,
-                'message' => 'Incorrecte inloggegevens'
+                'message' => 'Invalid email or password.'
             ];
         }
 

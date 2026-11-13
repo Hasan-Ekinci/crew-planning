@@ -1,12 +1,12 @@
 <template>
     <Modal :open-modal="openModal" size="l" @close-modal="doCloseModal">
         <h2 class="mb-6 break-words border-b border-slate-100 pb-4 pr-8 text-2xl font-semibold tracking-tight text-slate-900">
-            {{ isEditing ? (isUpdateForm ? 'Shift bewerken' : 'Shift toevoegen') : form.title }}
+            {{ isEditing ? (isUpdateForm ? 'Edit shift' : 'Add shift') : form.title }}
         </h2>
 
         <div v-if="!isEditing" class="space-y-6">
             <section v-if="form.description">
-                <h3 class="mb-2 text-sm font-semibold text-slate-900">Beschrijving</h3>
+                <h3 class="mb-2 text-sm font-semibold text-slate-900">Description</h3>
                 <p class="whitespace-pre-line break-words text-sm leading-relaxed text-slate-600">{{ form.description }}</p>
             </section>
 
@@ -16,22 +16,22 @@
                     <dd class="mt-1 text-sm font-medium leading-6 text-slate-900">{{ formatDateTime(form.start_datetime) }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm text-slate-500">Einde</dt>
+                    <dt class="text-sm text-slate-500">End</dt>
                     <dd class="mt-1 text-sm font-medium leading-6 text-slate-900">{{ formatDateTime(form.end_datetime) }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm text-slate-500">Rol</dt>
+                    <dt class="text-sm text-slate-500">Role</dt>
                     <dd class="mt-1 break-words text-sm font-medium leading-6 text-slate-900">{{ selectedRole?.name ?? '—' }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm text-slate-500">Bezetting</dt>
-                    <dd class="mt-1 text-sm font-medium leading-6 text-slate-900">{{ plannedEmployees.length }} van {{ form.max_crew }} crewleden</dd>
+                    <dt class="text-sm text-slate-500">Staffing</dt>
+                    <dd class="mt-1 text-sm font-medium leading-6 text-slate-900">{{ plannedEmployees.length }} of {{ form.max_crew }} crew members</dd>
                 </div>
             </dl>
 
             <section>
                 <div class="mb-3 flex items-center justify-between gap-3">
-                    <h3 class="text-sm font-semibold text-slate-900">Ingeplande medewerkers</h3>
+                    <h3 class="text-sm font-semibold text-slate-900">Assigned crew</h3>
                     <span class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{{ plannedEmployees.length }}</span>
                 </div>
                 <ul v-if="plannedEmployees.length > 0" class="grid gap-2 sm:grid-cols-2">
@@ -44,7 +44,7 @@
                         <span class="min-w-0 break-words">{{ employee.name }}</span>
                     </li>
                 </ul>
-                <p v-else class="rounded-lg bg-slate-50 px-4 py-5 text-center text-sm text-slate-500">Nog niemand ingepland.</p>
+                <p v-else class="rounded-lg bg-slate-50 px-4 py-5 text-center text-sm text-slate-500">No crew members assigned yet.</p>
             </section>
 
             <div class="flex justify-end border-t border-slate-100 pt-5">
@@ -53,14 +53,14 @@
                     @click="isEditing = true"
                     class="min-h-11 w-full cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:w-auto"
                 >
-                    Bewerken
+                    Edit
                 </button>
             </div>
         </div>
 
         <form v-else class="space-y-5" @submit.prevent="submitForm">
             <div>
-                <label for="shift-title" class="mb-1.5 block text-sm font-medium text-slate-700">Titel</label>
+                <label for="shift-title" class="mb-1.5 block text-sm font-medium text-slate-700">Title</label>
                 <input
                     id="shift-title"
                     v-model="form.title"
@@ -71,7 +71,7 @@
             </div>
 
             <div>
-                <label for="shift-description" class="mb-1.5 block text-sm font-medium text-slate-700">Beschrijving</label>
+                <label for="shift-description" class="mb-1.5 block text-sm font-medium text-slate-700">Description</label>
                 <textarea
                     id="shift-description"
                     v-model="form.description"
@@ -83,7 +83,7 @@
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="shift-max-crew" class="mb-1.5 block text-sm font-medium text-slate-700">Maximaal aantal crewleden</label>
+                    <label for="shift-max-crew" class="mb-1.5 block text-sm font-medium text-slate-700">Maximum crew members</label>
                     <input
                         id="shift-max-crew"
                         v-model.number="form.max_crew"
@@ -95,7 +95,7 @@
                 </div>
 
                 <div>
-                    <label for="shift-role" class="mb-1.5 block text-sm font-medium text-slate-700">Rol</label>
+                    <label for="shift-role" class="mb-1.5 block text-sm font-medium text-slate-700">Role</label>
                     <select
                         id="shift-role"
                         v-model="form.shift_role"
@@ -103,7 +103,7 @@
                         name="shift_role"
                         class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                     >
-                        <option value="" disabled>Selecteer een rol</option>
+                        <option value="" disabled>Select a role</option>
                         <option v-for="role in roles" :key="role.id" :value="role.id">
                             {{ role.name }}
                         </option>
@@ -113,7 +113,7 @@
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="shift-start" class="mb-1.5 block text-sm font-medium text-slate-700">Startdatum en -tijd</label>
+                    <label for="shift-start" class="mb-1.5 block text-sm font-medium text-slate-700">Start date and time</label>
                     <input
                         id="shift-start"
                         v-model="form.start_datetime"
@@ -125,7 +125,7 @@
                 </div>
 
                 <div>
-                    <label for="shift-end" class="mb-1.5 block text-sm font-medium text-slate-700">Einddatum en -tijd</label>
+                    <label for="shift-end" class="mb-1.5 block text-sm font-medium text-slate-700">End date and time</label>
                     <input
                         id="shift-end"
                         v-model="form.end_datetime"
@@ -139,7 +139,7 @@
 
             <div v-show="form.employees.length > 0" class="grid gap-4 sm:grid-cols-2">
                 <section class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                    <h3 class="mb-3 border-b border-slate-200 pb-2 text-sm font-semibold text-slate-700">Beschikbaar</h3>
+                    <h3 class="mb-3 border-b border-slate-200 pb-2 text-sm font-semibold text-slate-700">Available</h3>
                     <div class="min-h-32 space-y-2">
                         <button
                             v-for="employee in availableEmployees"
@@ -151,13 +151,13 @@
                             {{ employee.name }}
                         </button>
                         <p v-if="availableEmployees.length === 0" class="text-sm text-gray-500">
-                            Geen beschikbare medewerkers.
+                            No available crew members.
                         </p>
                     </div>
                 </section>
 
                 <section class="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-                    <h3 class="mb-3 border-b border-emerald-200 pb-2 text-sm font-semibold text-emerald-800">Ingepland</h3>
+                    <h3 class="mb-3 border-b border-emerald-200 pb-2 text-sm font-semibold text-emerald-800">Assigned</h3>
                     <div class="min-h-32 space-y-2">
                         <button
                             v-for="employee in plannedEmployees"
@@ -169,7 +169,7 @@
                             {{ employee.name }}
                         </button>
                         <p v-if="plannedEmployees.length === 0" class="text-sm text-gray-500">
-                            Nog niemand ingepland.
+                            No crew members assigned yet.
                         </p>
                     </div>
                 </section>
@@ -183,14 +183,14 @@
                     @click="openDeleteConfirmation = true"
                     class="min-h-11 w-full cursor-pointer rounded-lg border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-50 sm:mr-auto sm:w-auto"
                 >
-                    Verwijderen
+                    Delete
                 </button>
                 <button
                     type="submit"
                     :disabled="submitHttp.processing || openDeleteConfirmation"
                     class="min-h-11 w-full cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
-                    Opslaan
+                    Save
                 </button>
             </div>
         </form>
@@ -283,7 +283,7 @@ export default {
         const submitHttp = useHttp();
 
         function formatDateTime(value) {
-            return new Date(value).toLocaleString('nl-NL', {
+            return new Date(value).toLocaleString('en-GB', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',

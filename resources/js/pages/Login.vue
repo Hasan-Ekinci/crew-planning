@@ -51,7 +51,7 @@ export default {
 
         const login = () => {
             if (email.value === '' || password.value === '') {
-                errorMessage.value = "Velden kunnen niet leeg zijn"
+                errorMessage.value = "Please enter your email and password."
                 return
             }
 
@@ -72,7 +72,7 @@ export default {
                 },
             }).catch((error) => {
                 // console.error(error);
-                errorMessage.value = 'Er is iets mis gegaan'
+                errorMessage.value = 'Something went wrong. Please try again.'
             });
         };
 

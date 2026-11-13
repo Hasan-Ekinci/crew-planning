@@ -7,7 +7,7 @@
             <div role="dialog" aria-modal="true" class="relative max-h-full w-full max-w-md overflow-y-auto rounded bg-white p-6 shadow-xl">
                 <button
                     type="button"
-                    aria-label="Sluiten"
+                    aria-label="Close"
                     @click="$emit('closeModal')"
                     class="absolute right-3 top-3 flex h-8 w-8 cursor-pointer items-center justify-center rounded text-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 >X</button>

@@ -1,22 +1,23 @@
 <template>
     <AdminLayout :active-page="activePage" title="Shifts" :navigation-items="navigationItems">
         <div class="flex min-h-0 flex-1 flex-col gap-4">
-            <div class="flex shrink-0 items-center justify-end">
-                <button
-                    @click="setSelectedShift"
-                    type="button"
-                    class="rounded border border-gray-300 bg-slate-200 px-4 py-2 text-sm font-medium hover:bg-gray-400 hover:cursor-pointer"
-                >
-                    Shift toevoegen
-                </button>
-            </div>
-
             <WeekCalender
                 :shifts="shiftsFetched"
                 :week-start-date-time="weekStartDateTimeUpdated"
                 @change-week="changeWeek"
                 @set-selected-shift="setSelectedShift"
-            ></WeekCalender>
+            >
+                <template #actions>
+                    <button
+                        @click="setSelectedShift"
+                        type="button"
+                        class="ml-auto inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:transition-none sm:w-auto"
+                    >
+                        <span aria-hidden="true" class="text-lg leading-none">+</span>
+                        Add shift
+                    </button>
+                </template>
+            </WeekCalender>
         </div>
 
         <span v-if="openModal">
@@ -69,9 +70,9 @@ export default {
         const weekStartDateTimeUpdated = ref(props.weekStartDateTime)
 
         async function fetchAllShifts(direction) {
-            // fetch het met wat de de timestamp van nu
+            // Fetch shifts using the current week start timestamp.
 
-            // weekStartDateTimeUpdated.value (parsen?) en meegeven in de call EN de direction
+            // Pass weekStartDateTimeUpdated.value and the direction with the request.
             const params = new URLSearchParams({
                 oldDate: weekStartDateTimeUpdated.value,
                 direction: direction,

@@ -1,50 +1,94 @@
 <template>
-    <div class="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center">
-        <button
-            type="button"
-            class="flex cursor-pointer items-center justify-self-start gap-2 rounded px-3 py-2 text-sm hover:bg-gray-100"
-            @click="changeWeek('previous')"
-        >
-            <span aria-hidden="true">&larr;</span>
-            vorige week
-        </button>
-        <p class="text-center text-sm font-medium">{{ weekDateRange }}</p>
-        <button
-            type="button"
-            class="flex cursor-pointer items-center justify-self-end gap-2 rounded px-3 py-2 text-sm hover:bg-gray-100"
-            @click="changeWeek('next')"
-        >
-            volgende week
-            <span aria-hidden="true">&rarr;</span>
-        </button>
-    </div>
-    <div class="flex min-h-0 flex-1 flex-col border border-gray-300">
-        <div class="grid shrink-0 grid-cols-7 divide-x divide-gray-300 border-b border-gray-300">
-            <h2 v-for="day in days" :key="day" class="min-w-0 p-3 text-center font-medium">{{ day }}</h2>
+    <section class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-slate-200 p-4 sm:px-5">
+            <div class="flex min-w-0 flex-wrap items-center gap-4">
+                <div class="flex shrink-0 items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
+                    <button
+                        type="button"
+                        aria-label="Previous week"
+                        title="Previous week"
+                        class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-lg text-slate-600 transition-colors duration-200 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-blue-600 motion-reduce:transition-none"
+                        @click="changeWeek('previous')"
+                    >
+                        <span aria-hidden="true">&larr;</span>
+                    </button>
+                    <button
+                        type="button"
+                        aria-label="Next week"
+                        title="Next week"
+                        class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-lg text-slate-600 transition-colors duration-200 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-blue-600 motion-reduce:transition-none"
+                        @click="changeWeek('next')"
+                    >
+                        <span aria-hidden="true">&rarr;</span>
+                    </button>
+                </div>
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Week overview</p>
+                    <h2 class="mt-1 text-lg font-semibold tracking-tight text-slate-900">{{ weekDateRange }}</h2>
+                </div>
+            </div>
+            <slot name="actions"></slot>
         </div>
         <div class="min-h-0 flex-1 overflow-auto">
-            <div class="relative grid min-h-full grid-cols-7 content-start gap-y-2 py-3">
-                <div aria-hidden="true" class="pointer-events-none absolute inset-0 grid grid-cols-7 divide-x divide-gray-300">
-                    <div v-for="day in days" :key="day"></div>
+            <div class="flex min-h-full min-w-[56rem] flex-col">
+                <div class="grid shrink-0 grid-cols-7 divide-x divide-slate-100 border-b border-slate-200">
+                    <div
+                        v-for="day in days"
+                        :key="day.name"
+                        class="min-w-0 px-3 py-4 text-center"
+                        :class="day.isWeekend ? 'bg-slate-50' : 'bg-white'"
+                    >
+                        <h3 class="text-xs font-medium text-slate-500">{{ day.name }}</h3>
+                        <time
+                            :datetime="day.dateTime"
+                            :aria-current="day.isToday ? 'date' : undefined"
+                            class="mx-auto mt-2 flex h-9 w-9 items-center justify-center rounded-full text-lg font-semibold"
+                            :class="day.isToday ? 'bg-blue-600 text-white' : 'text-slate-900'"
+                        >
+                            {{ day.dayOfMonth }}
+                        </time>
+                    </div>
                 </div>
-                <article
-                    v-for="(shift, index) in calendarShifts"
-                    :key="shift.id"
-                    @click="setSelectedShift(shift)"
-                    :style="{ gridColumn: `${shift.startColumn} / ${shift.endColumn}`, gridRow: index + 1 }"
-                    class="relative mx-1 min-w-0 rounded border border-blue-300 bg-blue-100 px-3 py-2 text-sm text-blue-900 cursor-pointer hover:bg-slate-300"
-                >
-                    <p class="break-words font-medium">{{ shift.title }}</p>
-                </article>
+                <div class="relative grid min-h-[24rem] flex-1 grid-cols-7 content-start gap-y-3 py-4">
+                    <div aria-hidden="true" class="pointer-events-none absolute inset-0 grid grid-cols-7 divide-x divide-slate-100">
+                        <div
+                            v-for="day in days"
+                            :key="day.name"
+                            :class="day.isToday ? 'bg-blue-50/40' : (day.isWeekend ? 'bg-slate-50/80' : '')"
+                        ></div>
+                    </div>
+                    <button
+                        v-for="(shift, index) in calendarShifts"
+                        :key="shift.id"
+                        type="button"
+                        @click="setSelectedShift(shift)"
+                        :style="{ gridColumn: `${shift.startColumn} / ${shift.endColumn}`, gridRow: index + 1 }"
+                        class="relative mx-2 min-w-0 cursor-pointer rounded-xl border border-l-4 border-blue-200 border-l-blue-500 bg-blue-50 px-3 py-3 text-left shadow-sm transition-[background-color,border-color,box-shadow] duration-200 hover:border-blue-300 hover:border-l-blue-600 hover:bg-blue-100/70 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:transition-none"
+                    >
+                        <p class="break-words text-sm font-semibold text-blue-950">{{ shift.title }}</p>
+                        <p class="mt-1 text-xs leading-5 text-blue-800">{{ formatShiftTime(shift) }}</p>
+                        <span class="mt-3 flex items-center gap-1.5 text-xs font-medium text-blue-700">
+                            <UsersIcon class="shrink-0" />
+                            <span>{{ shift.users?.length ?? 0 }} / {{ shift.max_crew }} crew members</span>
+                        </span>
+                    </button>
+                    <p v-if="calendarShifts.length === 0" class="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-slate-500">
+                        No shifts this week.
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 </template>
 
 <script>
 import { computed } from 'vue';
+import UsersIcon from '@/shared-components/icons/UsersIcon.vue';
 
 export default {
+    components: {
+        UsersIcon,
+    },
     props: {
         shifts: {
             type: Array,
@@ -57,27 +101,49 @@ export default {
     },
     emits: ['changeWeek', 'setSelectedShift'],
     setup(props, { emit }) {
-        const days = [
-            'Maandag',
-            'Dinsdag',
-            'Woensdag',
-            'Donderdag',
-            'Vrijdag',
-            'Zaterdag',
-            'Zondag',
+        const weekdays = [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday',
         ];
 
         function dayNumber(date) {
             return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000;
         }
 
+        const days = computed(() => {
+            const start = new Date(props.weekStartDateTime.replace(' ', 'T'));
+            const today = dayNumber(new Date());
+
+            return weekdays.map((name, index) => {
+                const date = new Date(start);
+                date.setDate(start.getDate() + index);
+
+                return {
+                    name,
+                    dayOfMonth: date.getDate(),
+                    dateTime: [
+                        date.getFullYear(),
+                        String(date.getMonth() + 1).padStart(2, '0'),
+                        String(date.getDate()).padStart(2, '0'),
+                    ].join('-'),
+                    isToday: dayNumber(date) === today,
+                    isWeekend: index >= 5,
+                };
+            });
+        });
+
         const weekDateRange = computed(() => {
             const start = new Date(props.weekStartDateTime.replace(' ', 'T'));
             const end = new Date(start);
             end.setDate(end.getDate() + 6);
-            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
 
-            return `${start.toLocaleDateString('nl-NL', options)} <> ${end.toLocaleDateString('nl-NL', options)}`;
+            return `${start.toLocaleDateString('en-GB', options)} – ${end.toLocaleDateString('en-GB', options)}`;
         });
 
         const calendarShifts = computed(() => {
@@ -103,6 +169,16 @@ export default {
             emit('changeWeek', direction);
         }
 
+        function formatShiftTime(shift) {
+            const options = { hour: '2-digit', minute: '2-digit' };
+
+            if (dayNumber(shift.start) !== dayNumber(shift.end)) {
+                options.weekday = 'short';
+            }
+
+            return `${shift.start.toLocaleString('en-GB', options)} – ${shift.end.toLocaleString('en-GB', options)}`;
+        }
+
         function setSelectedShift(shift) {
             emit('setSelectedShift', shift)
         }
@@ -112,6 +188,7 @@ export default {
             calendarShifts,
             weekDateRange,
             changeWeek,
+            formatShiftTime,
             setSelectedShift
          };
     },

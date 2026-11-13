@@ -2,12 +2,18 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\AccountSettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminAuth;
+use Illuminate\Auth\Middleware\Authenticate;
 
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::post('/authenticate', [LoginController::class, 'authenticate'])->name('authenticate');
 Route::get('/redirect-to-correct-dashboard', [LoginController::class, 'redirectToCorrectDashboard'])->name('redirectToCorrectDashboard');
+
+Route::middleware([Authenticate::class])->group(function () {
+    Route::get('/account-settings', [AccountSettingsController::class, 'index'])->name('accountSettings');
+});
 
 Route::middleware([AdminAuth::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin');

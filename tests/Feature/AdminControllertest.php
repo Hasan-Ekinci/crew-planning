@@ -1,18 +1,18 @@
 <?php
 
-// test dat een shift succesvol aangemaakt kan worden
-// test dat een shift verwijderd kan worden
-// test dat een shift geupdate kan worden
+// Test that a shift can be created successfully.
+// Test that a shift can be deleted.
+// Test that a shift can be updated.
 
-// test dat initiele shifts goed worden ingeladen
-// test dat nieuwe shifts ophalen goed gaat
+// Test that initial shifts are loaded correctly.
+// Test that fetching new shifts works correctly.
 
-// test Dat gebruikers niet op dubbele shifts ingepland kunnen worden bij CREATE
-// test Dat gebruikers niet op dubbele shifts ingepland kunnen worden bij UPDATE
+// Test that users cannot be assigned to overlapping shifts when creating a shift.
+// Test that users cannot be assigned to overlapping shifts when updating a shift.
 
-// test dat gebruikers van een shift verwijderd kunnen worden
+// Test that users can be removed from a shift.
 
-// test dat de rol van een shift veranderd kan worden
+// Test that a shift's role can be changed.
 
-// test dat er geen gebruiker zonder juiste rol gehangen kan worden aan een shift bij CREATE
-// test dat er geen gebruiker zonder juiste rol gehangen kan worden aan een shift bij UPDATE
+// Test that users without the required role cannot be assigned when creating a shift.
+// Test that users without the required role cannot be assigned when updating a shift.

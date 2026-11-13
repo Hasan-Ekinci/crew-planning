@@ -1,9 +1,9 @@
 <template>
     <ConfirmationModal :open-modal="openModal" @close-modal="closeModal">
-        <template #title>Shift verwijderen?</template>
+        <template #title>Delete shift?</template>
         <template #body>
-            <p class="break-words">Weet je zeker dat je de shift <strong class="font-semibold text-slate-900">{{ shiftTitle }}</strong> wilt verwijderen?</p>
-            <p>De shift en bijbehorende inplanning worden definitief verwijderd. Dit kan niet ongedaan worden gemaakt.</p>
+            <p class="break-words">Are you sure you want to delete the shift <strong class="font-semibold text-slate-900">{{ shiftTitle }}</strong>?</p>
+            <p>The shift and its crew assignments will be permanently deleted. This cannot be undone.</p>
             <p v-if="errorMessage" role="alert" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">{{ errorMessage }}</p>
         </template>
         <template #buttons>
@@ -13,7 +13,7 @@
                 @click="closeModal"
                 class="min-h-11 w-full cursor-pointer rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600 disabled:cursor-not-allowed disabled:opacity-50 sm:mr-auto sm:w-auto"
             >
-                Annuleren
+                Cancel
             </button>
             <button
                 type="button"
@@ -21,7 +21,7 @@
                 @click="deleteShift"
                 class="min-h-11 w-full cursor-pointer rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
-                {{ deleteHttp.processing ? 'Verwijderen…' : 'Shift verwijderen' }}
+                {{ deleteHttp.processing ? 'Deleting…' : 'Delete shift' }}
             </button>
         </template>
     </ConfirmationModal>
