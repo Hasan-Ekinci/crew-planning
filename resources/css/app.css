@@ -1,1 +1,30 @@
 @import 'tailwindcss';
+
+::view-transition-old(root) {
+    display: none;
+}
+
+::view-transition-new(root) {
+    animation: none;
+}
+
+::view-transition-group(sidebar-active),
+::view-transition-old(sidebar-active),
+::view-transition-new(sidebar-active),
+::view-transition-group(page-content),
+::view-transition-old(page-content),
+::view-transition-new(page-content) {
+    animation-duration: 200ms;
+    animation-timing-function: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(sidebar-active),
+    ::view-transition-old(sidebar-active),
+    ::view-transition-new(sidebar-active),
+    ::view-transition-group(page-content),
+    ::view-transition-old(page-content),
+    ::view-transition-new(page-content) {
+        animation: none;
+    }
+}
