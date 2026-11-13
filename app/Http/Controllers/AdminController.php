@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\getAvailableEmployeesByRoleRequest;
 use App\Http\Requests\AddOrUpdateShiftRequest;
+use App\Http\Requests\DeleteShiftRequest;
 use App\Http\Requests\GetShiftsRequest;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -85,6 +86,11 @@ class AdminController extends Controller {
     public function UpdateShift(AddOrUpdateShiftRequest $request): array
     {
         return $this->shiftRepository->addShiftOrUpdate($request);
+    }
+
+    public function deleteShift(DeleteShiftRequest $request): array
+    {
+        return $this->shiftRepository->deleteShift($request);
     }
 
     private function getNavigationItems(): array

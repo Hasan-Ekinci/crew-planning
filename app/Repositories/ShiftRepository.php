@@ -2,10 +2,13 @@
 
 namespace App\Repositories;
 
-use App\models\UserShift;
-use App\models\Shift;
+use App\Models\UserShift;
+use App\Models\Shift;
 use App\Http\Requests\AddOrUpdateShiftRequest;
+use App\Http\Requests\DeleteShiftRequest;
+use App\Models\UserShiftConfirmation;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ShiftRepository {
     public function getShiftsForWeek(Carbon $date): \Illuminate\Support\Collection
@@ -17,6 +20,30 @@ class ShiftRepository {
                 $query->select(['users.id', 'name']);
             })
             ->get();
+    }
+
+    public function deleteShift(DeleteShiftRequest $request): array
+    {
+        $shiftId = $request->input('id');
+
+        return DB::transaction(function () use ($shiftId) {
+            $shift = Shift::query()->findOrFail($shiftId);
+
+            UserShiftConfirmation::query()
+                ->whereIn('user_shift_id', UserShift::query()->where('shift_id', $shiftId)->select('id'))
+                ->delete();
+
+            UserShift::query()
+                ->where('shift_id', $shiftId)
+                ->delete();
+
+            $shift->delete();
+
+            return [
+                'success' => true,
+                'message' => '',
+            ];
+        });
     }
 
     public function addShiftOrUpdate(AddOrUpdateShiftRequest $request): array

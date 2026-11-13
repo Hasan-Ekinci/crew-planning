@@ -175,10 +175,19 @@
                 </section>
             </div>
             <p v-if="errorMessage" role="alert" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-700">{{ errorMessage }}</p>
-            <div class="flex justify-end border-t border-slate-100 pt-5">
+            <div class="flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+                <button
+                    v-if="isUpdateForm"
+                    type="button"
+                    :disabled="submitHttp.processing || openDeleteConfirmation"
+                    @click="openDeleteConfirmation = true"
+                    class="min-h-11 w-full cursor-pointer rounded-lg border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-50 sm:mr-auto sm:w-auto"
+                >
+                    Verwijderen
+                </button>
                 <button
                     type="submit"
-                    :disabled="submitHttp.processing"
+                    :disabled="submitHttp.processing || openDeleteConfirmation"
                     class="min-h-11 w-full cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
                     Opslaan
@@ -186,16 +195,27 @@
             </div>
         </form>
     </Modal>
+
+    <DeleteShiftConfirmationModal
+        v-if="openDeleteConfirmation"
+        :open-modal="openDeleteConfirmation"
+        :shift-id="form.id"
+        :shift-title="existingShift?.title ?? ''"
+        @close-modal="openDeleteConfirmation = false"
+        @deleted="onShiftDeleted"
+    ></DeleteShiftConfirmationModal>
 </template>
 
 <script>
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useHttp } from '@inertiajs/vue3';
 import Modal from '@/shared-components/subcomponents/Modal.vue';
+import DeleteShiftConfirmationModal from './shift-modal/DeleteShiftConfirmationModal.vue';
 
 export default {
     components: {
         Modal,
+        DeleteShiftConfirmationModal,
     },
     props: {
         openModal: {
@@ -217,6 +237,7 @@ export default {
         ].join('-');
 
         const errorMessage = ref('')
+        const openDeleteConfirmation = ref(false);
 
         const form = reactive({
             id: null,
@@ -288,6 +309,12 @@ export default {
 
         function doCloseModal() {
             resetForm()
+            emit('closeModal');
+        }
+
+        function onShiftDeleted() {
+            resetForm();
+            emit('fetchAllShifts', 'current');
             emit('closeModal');
         }
 
@@ -400,12 +427,14 @@ export default {
             roles,
             selectedRole,
             errorMessage,
+            openDeleteConfirmation,
             availableEmployees,
             plannedEmployees,
             formatDateTime,
             toggleEmployee,
             submitHttp,
             doCloseModal,
+            onShiftDeleted,
             submitForm,
             fetchEmployeesForRole
         };

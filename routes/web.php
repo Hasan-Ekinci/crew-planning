@@ -20,6 +20,7 @@ Route::middleware([AdminAuth::class])->group(function () {
     route::get('/admin/get-shifts', [AdminController::class, 'getShifts'])->name('adminGetShifts');
     route::post('/admin/add-shift', [AdminController::class, 'addShift'])->name('adminAddShift');
     route::put('/admin/update-shift', [AdminController::class, 'updateShift'])->name('adminUpdateShift');
+    Route::delete('/admin/delete-shift', [AdminController::class, 'deleteShift'])->name('adminDeleteShift');
 });
 
 Route::fallback(fn () => redirect('/'));
