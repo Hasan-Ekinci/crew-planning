@@ -29,6 +29,9 @@ Route::middleware([AdminAuth::class])->group(function () {
     Route::delete('/admin/delete-shift', [AdminController::class, 'deleteShift'])->name('adminDeleteShift');
 
     Route::get('/admin/employees', [EmployeeController::class, 'index'])->name('adminEmployees');
+    Route::get('/admin/employees/create', [EmployeeController::class, 'create'])->name('adminCreateEmployee');
+    Route::get('/admin/employees/edit/{id}', [EmployeeController::class, 'edit'])->whereNumber('id')->name('adminEditEmployee');
+    Route::post('/admin/employees/save', [EmployeeController::class, 'save'])->name('adminSaveEmployee');
 });
 
 Route::fallback(fn () => redirect('/'));

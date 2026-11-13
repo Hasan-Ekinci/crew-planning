@@ -2,9 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Http\Requests\SaveEmployeeRequest;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserRole;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class EmployeeRepository {
     public function getEmployees(): \Illuminate\Support\Collection
@@ -14,6 +19,68 @@ class EmployeeRepository {
             ->with('roles', function ($query) {
                 $query->select(['roles.name']);
             })
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function getEmployee(int $id): User
+    {
+        return User::query()
+            ->select(['id', 'name', 'email'])
+            ->with('roles', function ($query) {
+                $query->select(['roles.id', 'roles.name']);
+            })
+            ->findOrFail($id);
+    }
+
+    public function saveEmployee(SaveEmployeeRequest $request): array
+    {
+        $data = $request->validated();
+
+        return DB::transaction(function () use ($data) {
+            if (isset($data['id'])) {
+                $employee = User::query()
+                    ->select(['id', 'name', 'email'])
+                    ->findOrFail($data['id']);
+            } else {
+                $employee = new User();
+                $employee->setAttribute('password', Hash::make(Str::random(64)));
+            }
+
+            $employee->fill([
+                'name' => $data['name'],
+                'email' => $data['email'],
+            ])->save();
+
+            UserRole::query()
+                ->where('user_id', $employee->getAttribute('id'))
+                ->delete();
+
+            $userRoles = [];
+            $timestamp = now();
+
+            foreach ($data['roles'] as $roleId) {
+                $userRoles[] = [
+                    'user_id' => $employee->getAttribute('id'),
+                    'role_id' => $roleId,
+                    'created_at' => $timestamp,
+                    'updated_at' => $timestamp,
+                ];
+            }
+
+            UserRole::query()->insert($userRoles);
+
+            return [
+                'success' => true,
+                'message' => '',
+            ];
+        });
+    }
+
+    public function getAllRoles(): \Illuminate\Support\Collection
+    {
+        return Role::query()
+            ->select(['id', 'name'])
             ->orderBy('name')
             ->get();
     }
