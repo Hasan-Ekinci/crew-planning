@@ -6,6 +6,7 @@ use App\Http\Requests\getAvailableEmployeesByRoleRequest;
 use App\Http\Requests\AddOrUpdateShiftRequest;
 use App\Http\Requests\DeleteShiftRequest;
 use App\Http\Requests\GetShiftsRequest;
+use App\Http\Requests\SaveRoleRequest;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Repositories\EmployeeRepository;
@@ -34,13 +35,24 @@ class AdminController extends Controller {
     {
         return Inertia::render('admin/Roles', [
             'activePage' => 'roles',
-            'navigationItems' => $this->getNavigationItems()
+            'navigationItems' => $this->getNavigationItems(),
+            'roles' => $this->employeeRepository->getRolesWithUserCount(),
         ]);
     }
 
     public function getRoles(): \Illuminate\Support\Collection
     {
         return $this->employeeRepository->getEmployeeRoles();
+    }
+
+    public function getRoleUsers(int $id): \Illuminate\Support\Collection
+    {
+        return $this->employeeRepository->getRoleUsers($id);
+    }
+
+    public function saveRole(SaveRoleRequest $request): array
+    {
+        return $this->employeeRepository->saveRole($request);
     }
 
     public function getEmployeesByRole(getAvailableEmployeesByRoleRequest $request): \Illuminate\Support\Collection

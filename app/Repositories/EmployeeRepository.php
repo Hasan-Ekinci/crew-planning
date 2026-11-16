@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Http\Requests\SaveEmployeeRequest;
+use App\Http\Requests\SaveRoleRequest;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserRole;
@@ -83,6 +84,47 @@ class EmployeeRepository {
             ->select(['id', 'name'])
             ->orderBy('name')
             ->get();
+    }
+
+    public function getRolesWithUserCount(): \Illuminate\Support\Collection
+    {
+        return Role::query()
+            ->select(['id', 'name'])
+            ->selectSub(
+                UserRole::query()
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('user_roles.role_id', 'roles.id'),
+                'users_count'
+            )
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function getRoleUsers(int $roleId): \Illuminate\Support\Collection
+    {
+        return User::query()
+            ->select(['users.id', 'users.name'])
+            ->whereHas('roles', function ($query) use ($roleId) {
+                $query->where('roles.id', $roleId);
+            })
+            ->orderBy('users.name')
+            ->get();
+    }
+
+    public function saveRole(SaveRoleRequest $request): array
+    {
+        $data = $request->validated();
+
+        $role = Role::query()
+            ->select(['id', 'name'])
+            ->findOrFail($data['id']);
+
+        $role->setAttribute('name', $data['name'])->save();
+
+        return [
+            'success' => true,
+            'message' => '',
+        ];
     }
 
     public function getEmployeeRoles(): \Illuminate\Support\Collection

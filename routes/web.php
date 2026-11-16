@@ -19,6 +19,8 @@ Route::middleware([Authenticate::class])->group(function () {
 Route::middleware([AdminAuth::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin');
     Route::get('/admin/roles', [AdminController::class, 'roles'])->name('adminRoles');
+    Route::post('/admin/roles/save', [AdminController::class, 'saveRole'])->name('adminSaveRole');
+    Route::get('/admin/roles/{id}/users', [AdminController::class, 'getRoleUsers'])->whereNumber('id')->name('adminGetRoleUsers');
 
     route::get('/admin/get-roles', [AdminController::class, 'getRoles'])->name('adminGetRoles');
     route::get('/admin/get-employees-by-roles', [AdminController::class, 'getEmployeesByRole'])->name('adminGetEmplloyeesByRoles');
