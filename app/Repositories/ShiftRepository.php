@@ -7,6 +7,7 @@ use App\Models\Shift;
 use App\Http\Requests\AddOrUpdateShiftRequest;
 use App\Http\Requests\DeleteShiftRequest;
 use App\Models\UserShiftConfirmation;
+use App\Models\UserRole;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -67,22 +68,31 @@ class ShiftRepository {
         
 
         if (count($users) > 0) {
+            $eligibleUserIds = UserRole::query()
+                ->where('role_id', $request->input('shift_role'))
+                ->whereIn('user_id', array_column($users, 'id'))
+                ->pluck('user_id');
 
-            // check for each user-id if the have a shift at that same timespan
+            // Check role eligibility and availability before saving any changes.
             foreach($users as $user) {
+                if (!$eligibleUserIds->contains($user['id'])) {
+                    $name = $user['name'];
+
+                    return [
+                        'success' => false,
+                        'message' => "{$name} does not have the required role for this shift.",
+                    ];
+                }
+
                 $isAlreadyPlannedIn = UserShift::query()
                     ->join('shifts', function($query) use ($user, $start_datetime, $end_datetime, $shiftId) {
                         $query->on('user_shifts.shift_id', 'shifts.id')
                             ->where('user_shifts.user_id', $user['id'])
                             ->whereNot('user_shifts.shift_id', $shiftId)
-                            ->where(function ($query) use ($start_datetime, $end_datetime) {
-                                $query->where('start_datetime', '>=', $start_datetime)
-                                    ->where('start_datetime' , '<', $end_datetime)
-                                    ->orWhere('end_datetime', '>=', $start_datetime)
-                                    ->where('end_datetime', '<', $end_datetime);
-                            });
+                            ->where('shifts.start_datetime', '<', $end_datetime)
+                            ->where('shifts.end_datetime', '>', $start_datetime);
                     })
-                    ->count() > 0;
+                    ->exists();
 
                 if ($isAlreadyPlannedIn) {
                     $name = $user['name'];
