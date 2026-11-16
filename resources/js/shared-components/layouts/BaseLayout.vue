@@ -35,8 +35,9 @@
                 </Link>
             </nav>
 
-            <div class="mt-auto pt-4">
+            <div class="mt-auto space-y-3 pt-4">
                 <AccountSettingsMenuItem :active="activePage === 'accountSettings'" :is-admin-dashboard="isAdminDashboard" />
+                <LogoutMenuItem />
             </div>
         </aside>
 
@@ -55,11 +56,13 @@
 <script>
 import { Link } from '@inertiajs/vue3';
 import AccountSettingsMenuItem from '@/shared-components/subcomponents/AccountSettingsMenuItem.vue';
+import LogoutMenuItem from '@/shared-components/subcomponents/LogoutMenuItem.vue';
 
 export default {
     components: {
         Link,
         AccountSettingsMenuItem,
+        LogoutMenuItem,
     },
     props: {
         activePage: {
