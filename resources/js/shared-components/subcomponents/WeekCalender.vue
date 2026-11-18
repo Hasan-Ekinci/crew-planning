@@ -57,13 +57,15 @@
                             :class="day.isToday ? 'bg-blue-50/40' : (day.isWeekend ? 'bg-slate-50/80' : '')"
                         ></div>
                     </div>
-                    <button
+                    <component
                         v-for="(shift, index) in calendarShifts"
                         :key="shift.id"
-                        type="button"
+                        :is="readOnly ? 'div' : 'button'"
+                        :type="readOnly ? undefined : 'button'"
                         @click="setSelectedShift(shift)"
                         :style="{ gridColumn: `${shift.startColumn} / ${shift.endColumn}`, gridRow: index + 1 }"
-                        class="relative mx-2 min-w-0 cursor-pointer rounded-xl border border-l-4 border-blue-200 border-l-blue-500 bg-blue-50 px-3 py-3 text-left shadow-sm transition-[background-color,border-color,box-shadow] duration-200 hover:border-blue-300 hover:border-l-blue-600 hover:bg-blue-100/70 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:transition-none"
+                        class="relative mx-2 min-w-0 rounded-xl border border-l-4 border-blue-200 border-l-blue-500 bg-blue-50 px-3 py-3 text-left shadow-sm"
+                        :class="readOnly ? '' : 'cursor-pointer transition-[background-color,border-color,box-shadow] duration-200 hover:border-blue-300 hover:border-l-blue-600 hover:bg-blue-100/70 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:transition-none'"
                     >
                         <p class="break-words text-sm font-semibold text-blue-950">{{ shift.title }}</p>
                         <p class="mt-1 text-xs leading-5 text-blue-800">{{ formatShiftTime(shift) }}</p>
@@ -71,7 +73,7 @@
                             <UsersIcon class="shrink-0" />
                             <span>{{ shift.users?.length ?? 0 }} / {{ shift.max_crew }} crew members</span>
                         </span>
-                    </button>
+                    </component>
                     <p v-if="calendarShifts.length === 0" class="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-slate-500">
                         No shifts this week.
                     </p>
@@ -97,6 +99,10 @@ export default {
         weekStartDateTime: {
             type: String,
             required: true,
+        },
+        readOnly: {
+            type: Boolean,
+            default: false,
         },
     },
     emits: ['changeWeek', 'setSelectedShift'],
@@ -180,6 +186,10 @@ export default {
         }
 
         function setSelectedShift(shift) {
+            if (props.readOnly) {
+                return;
+            }
+
             emit('setSelectedShift', shift)
         }
 

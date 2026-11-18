@@ -67,7 +67,6 @@ class LoginController extends Controller
             return \Redirect(route('admin'));
         }
 
-        // TODO: redirect worker to their dashboard
-        return \Redirect('/');
+        return \Redirect(route('crew'));
     }
 }

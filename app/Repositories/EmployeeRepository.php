@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Http\Requests\SaveAccountSettingsRequest;
 use App\Http\Requests\SaveEmployeeRequest;
 use App\Http\Requests\SaveRoleRequest;
 use App\Models\Role;
@@ -76,6 +77,22 @@ class EmployeeRepository {
                 'message' => '',
             ];
         });
+    }
+
+    public function saveAccountSettings(SaveAccountSettingsRequest $request): array
+    {
+        $account = $request->user();
+        $data = $request->validated();
+
+        $account->fill([
+            'name' => $data['name'],
+            'email' => $data['email'],
+        ])->save();
+
+        return [
+            'success' => true,
+            'message' => '',
+        ];
     }
 
     public function getAllRoles(): \Illuminate\Support\Collection

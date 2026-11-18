@@ -5,7 +5,7 @@
         title="Account settings"
         :navigation-items="navigationItems"
     >
-        <AccountSettingsContent />
+        <AccountSettingsContent :account="account" :is-admin-dashboard="isAdminDashboard" />
     </component>
 </template>
 
@@ -28,6 +28,10 @@ export default {
         navigationItems: {
             type: Object,
             default: () => ({})
+        },
+        account: {
+            type: Object,
+            required: true
         }
     },
 }

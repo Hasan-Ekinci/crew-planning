@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Models\UserShift;
 use App\Models\Shift;
+use App\Models\User;
+use App\Http\Requests\AcceptShiftRequest;
 use App\Http\Requests\AddOrUpdateShiftRequest;
 use App\Http\Requests\DeleteShiftRequest;
 use App\Models\UserShiftConfirmation;
@@ -21,6 +23,115 @@ class ShiftRepository {
                 $query->select(['users.id', 'name']);
             })
             ->get();
+    }
+
+    public function getUserShiftsForWeek(Carbon $date, int $userId): \Illuminate\Support\Collection
+    {
+        return Shift::query()
+            ->where('start_datetime', '<', $date->copy()->startOfWeek()->addWeek())
+            ->where('end_datetime', '>', $date->copy()->startOfWeek())
+            ->whereHas('users', function ($query) use ($userId) {
+                $query->where('users.id', $userId);
+            })
+            ->with('users', function ($query) {
+                $query->select(['users.id', 'name']);
+            })
+            ->get();
+    }
+
+    public function getAvailableShiftsForWeek(Carbon $date, int $userId): \Illuminate\Support\Collection
+    {
+        return Shift::query()
+            ->where('start_datetime', '<', $date->copy()->startOfWeek()->addWeek())
+            ->where('end_datetime', '>', $date->copy()->startOfWeek())
+            ->whereIn('shift_role', UserRole::query()
+                ->select('role_id')
+                ->where('user_id', $userId)
+            )
+            ->where('max_crew', '>', UserShift::query()
+                ->selectRaw('COUNT(*)')
+                ->whereColumn('user_shifts.shift_id', 'shifts.id')
+            )
+            ->whereNotExists(UserShift::query()
+                ->selectRaw('1')
+                ->join('shifts as assigned_shifts', 'user_shifts.shift_id', '=', 'assigned_shifts.id')
+                ->where('user_shifts.user_id', $userId)
+                ->whereColumn('assigned_shifts.start_datetime', '<', 'shifts.end_datetime')
+                ->whereColumn('assigned_shifts.end_datetime', '>', 'shifts.start_datetime')
+            )
+            ->with('users', function ($query) {
+                $query->select(['users.id', 'name']);
+            })
+            ->get();
+    }
+
+    public function acceptShift(AcceptShiftRequest $request): array
+    {
+        $userId = $request->user()->getAuthIdentifier();
+        $shiftId = $request->integer('id');
+
+        return DB::transaction(function () use ($userId, $shiftId) {
+            // Serialize acceptances for both the crew member and the shift.
+            User::query()->whereKey($userId)->lockForUpdate()->firstOrFail();
+            $shift = Shift::query()->lockForUpdate()->findOrFail($shiftId);
+
+            $hasRole = UserRole::query()
+                ->where('user_id', $userId)
+                ->where('role_id', $shift->getAttribute('shift_role'))
+                ->exists();
+
+            if (!$hasRole) {
+                return [
+                    'success' => false,
+                    'message' => 'You do not have the required role for this shift.',
+                ];
+            }
+
+            $isAssigned = UserShift::query()
+                ->where('user_id', $userId)
+                ->where('shift_id', $shiftId)
+                ->exists();
+
+            if ($isAssigned) {
+                return [
+                    'success' => false,
+                    'message' => 'You are already assigned to this shift.',
+                ];
+            }
+
+            $crewCount = UserShift::query()->where('shift_id', $shiftId)->count();
+
+            if ($crewCount >= $shift->getAttribute('max_crew')) {
+                return [
+                    'success' => false,
+                    'message' => 'This shift is fully staffed.',
+                ];
+            }
+
+            $hasOverlap = UserShift::query()
+                ->join('shifts', 'user_shifts.shift_id', '=', 'shifts.id')
+                ->where('user_shifts.user_id', $userId)
+                ->where('shifts.start_datetime', '<', $shift->getAttribute('end_datetime'))
+                ->where('shifts.end_datetime', '>', $shift->getAttribute('start_datetime'))
+                ->exists();
+
+            if ($hasOverlap) {
+                return [
+                    'success' => false,
+                    'message' => 'You are already assigned to another shift during this time.',
+                ];
+            }
+
+            UserShift::query()->create([
+                'user_id' => $userId,
+                'shift_id' => $shiftId,
+            ]);
+
+            return [
+                'success' => true,
+                'message' => '',
+            ];
+        });
     }
 
     public function deleteShift(DeleteShiftRequest $request): array

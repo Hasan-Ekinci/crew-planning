@@ -15,11 +15,6 @@ class AdminAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // check if the user is logged in, else redirect to index
-        if (!\Auth::check()) {
-            return \Redirect(route('login'));
-        }
-
         $account = \Auth::user();
 
         // check if the user is an admin
